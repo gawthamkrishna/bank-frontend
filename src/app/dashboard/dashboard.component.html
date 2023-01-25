@@ -1,0 +1,182 @@
+<!-- <p>dashboard works!</p> -->
+<nav class="navbar navbar-expand-lg ">
+    <div class="container-fluid">
+        <a class="navbar-brand" routerLink=".">BANK</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse " id="navbarNavDropdown">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="#">Home</a>
+                </li>
+
+                <!--  -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        Services
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item btn" data-bs-toggle="offcanvas" href="#offcanvasDeposit">Deposit</a>
+                        </li>
+                        <li><a class="dropdown-item btn" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Fund
+                                Transfer</a></li>
+                        <li><a class="dropdown-item btn" routerLink="/transcation">Mini statement</a></li>
+                        <li><a class="dropdown-item btn" (click)="getBalance()" data-bs-toggle="offcanvas"
+                                href="#offcanvasExample">Balance Enquiry</a></li>
+                        <li><a class="dropdown-item btn" (click)="deleteAccountFromNavBar()">Delete Ac <i class="fa-sharp fa-solid fa-trash"></i></a></li>
+                    </ul>
+                    <!--  -->
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About Us</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact Us</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link btn" (click)="logout()">Log Out <i class="fa-solid fa-right-from-bracket"></i></a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- app-delete  selector-->
+<app-delete (onDelete)="onDelete($event)" (onCancel)="onCancel()" [item]="acno"></app-delete>
+<!-- deleteSpinner -->
+<div *ngIf="deleteSpinnerDiv" id="mt-5 p-5">
+    <div class="text-center">
+        <img class="logout" src="https://i2.wp.com/raw.githubusercontent.com/Codelessly/FlutterLoadingGIFs/master/packages/cupertino_activity_indicator.gif?w=770&is-pending-load=1#038;ssl=1"
+            alt="logout spinner">
+            <p>Deleting account</p>
+    </div>
+</div>
+<!-- logout spinner -->
+<div *ngIf="logoutDiv" id="mt-5 p-5">
+    <div class="text-center">
+        <img class="logout" src="https://i2.wp.com/raw.githubusercontent.com/Codelessly/FlutterLoadingGIFs/master/packages/cupertino_activity_indicator.gif?w=770&is-pending-load=1#038;ssl=1"
+            alt="logout spinner">
+            <p>logging out</p>
+    </div>
+</div>
+
+<!-- dashboard design -->
+<div *ngIf="!logoutDiv" class="back">
+    <div *ngIf="!deleteConfirm" >    
+    <div class="container">
+            <div class="welcome">
+                <h1>Welcome</h1>
+                <h2>{{user}}</h2>
+            </div>
+
+        </div>
+    </div>
+
+    </div>
+
+
+<!-- offcanvas deposit  -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasDeposit" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Deposit</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div style="margin-top: 60px;">
+            <h3>hello {{user}}</h3>
+            <form (ngSubmit)="deposit()" [formGroup]="depositForm" class="mt-2 border p-2">
+                <div>
+                    <input name="amount" formControlName="amount" type="text" class="form-control"
+                        placeholder="Enter Amount">
+                </div>
+                <!-- invalid amount -->
+                <div *ngIf="this.depositForm.get('amount')?.errors&&this.depositForm.get('amount')?.touched"
+                    class="text-danger mt-2">Invalid amount</div>
+                <div class="text-danger">{{depositMsg}}</div>
+                <button (click)="showconfetti($event.target)" class="btn btn-primary mt-2">Deposit</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+<!-- ------------------------------------------------------------- -->
+
+
+<!-- offcanvas balance enquiry  -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Balance Enquiry</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div style="margin-top: 60px;">
+            <h3>hello {{user}}</h3>
+            <label>Your current account balance is {{balance}}</label>
+        </div>
+
+    </div>
+</div>
+<!-- ------------------------------------------------------------- -->
+
+<!-- fund transfer Modal-->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Fund Transfer</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    (click)=" clearFundTransferForm()"></button>
+            </div>
+            <div class="modal-body">
+                <!--  -->
+                <form [formGroup]="fundTransferForm" class="border p-5 mt-5 me-5">
+                    <div>
+                        <input name="acno" formControlName="toAcno" placeholder="Credit Account Number" type="text"
+                            class="form-control">
+                    </div>
+
+                    <div *ngIf="this.fundTransferForm.get('toAcno')?.errors&&this.fundTransferForm.get('toAcno')?.touched"
+                        class="text-danger mt-2">Invalid account number</div>
+                    <!-- amount -->
+                    <div class="mt-3">
+                        <input name="amount" formControlName="amount" placeholder="amount" type="text"
+                            class="form-control">
+                    </div>
+
+
+                    <div *ngIf="this.fundTransferForm.get('amount')?.errors&&this.fundTransferForm.get('amount')?.touched"
+                        class="text-danger mt-2">Invalid password</div>
+
+                    <!-- invalid pswd -->
+                    <div class="mt-3">
+                        <input name="pswd" formControlName="pswd" placeholder="Password" type="password"
+                            class="form-control">
+                    </div>
+
+                    <div *ngIf="this.fundTransferForm.get('pswd')?.errors&&this.fundTransferForm.get('pswd')?.touched"
+                        class="text-danger mt-2">Invalid password</div>
+
+                </form>
+
+                <!--  -->
+            </div>
+            <div> <!-- fundTransferSuccess -->
+                {{fundTransferSuccessMsg}}
+            </div>
+            <!-- fundTransferError -->
+            <div class="text-danger">{{fundTransferErrorMsg}}</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    (click)=" clearFundTransferForm()">Close</button>
+                <button type="button" (click)="transfer()" class="btn btn-primary">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- -------------------------------------------------------------------------------------- -->
